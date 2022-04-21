@@ -1,7 +1,6 @@
-       
-	PROGRAM main
+PROGRAM main
 	implicit real*8(a-h,o-z)
-	parameter(n=1000,nmaxt=10**9,dt=0.1d0,C=1.0d0,beta=0.0d0,w=4.0d0)
+	parameter(n=1000,nmaxt=10**9,dt=0.1d0,C=1.0d0,beta=1.0d0,w=4.0d0)
 	dimension x(0:n+1),p(n)
 	dimension V(n),Ei_aver(n),total(n),VV(100000000),Ei(n),ro(n)
 
@@ -16,16 +15,12 @@
 
         
 	x(n0)=C
-	
 
-	do i=1,10**8
-	VV(i)=1.5d0-ran(idum)
-	enddo
 
 	do i=1,n
-      V(i)=VV(i+11111*1)
+      V(i)=1
 	enddo
-	V(n0)=1.0d0
+	
 
       H1=0.0d0;H2=0.0d0	  
 	do i=1,n   
@@ -36,9 +31,9 @@
 	H2=H2+beta*x(i)*x(i)*x(i)*x(i)/4.0d0
 	enddo
 	H0=H1+H2
-	write(*,*)t,H0,H2
+	write(*,*)H0
 
-	do 100 istep=1,nmaxt
+	do 100 istep=1,2
 	t=dble(istep)*dt
 
 	call SABA2C(N,dt,x,p,V,beta,w)
@@ -53,7 +48,7 @@
 	H2=H2+beta*x(i)**4/4.0d0
 	enddo
 	H=H1+H2
-    print *,abs((H-H0)/H0)
+    print *,H,abs((H-H0)/H0)
 100	continue
 	end
 
@@ -144,4 +139,3 @@
 	enddo
 	return
 	end
-                                 
