@@ -1,0 +1,148 @@
+package kgprogram;
+
+import java.util.Arrays;
+
+public class Mains {
+	public static void main(String[] arg){
+		int n = 8092;	
+		int center = 1024;
+		double[] tao1 = new double[]{0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001};
+		int m = 1000;
+
+		KG system = new KG();
+		for (int j = 0; j < 6; j++) {
+			double energy0;	
+			double energy2;		
+			system.setParameter(tao1[j], n, center); 			
+			energy0 =system.energy(); 
+			//System.out.println(energy0);
+			for(int i =0;i < m; i++) {
+				 system.solveEquation(); 				
+			}
+			energy2 = system.energy();
+			//System.out.println(energy2);
+			System.out.println("步长为"+tao1[j]+"的相对误差： "+(energy2 - energy0) / energy0 );
+			System.out.println("本次计算的物理量等于" + system.countSigma() + "\n");
+		}
+	}
+}
+
+
+//定义处理一维KG链的动力学演化过程的类
+class KG {
+	int n;       		//假设一维KG链有n个点
+	double beta;
+	double w;  
+	double c1;
+	double c2;
+	double d1;
+	double g;
+	double tao;         //tao为一次积分步长	
+	double sigma;       //需要计算的物理量
+	double[] e;  		//在位势
+	double[] u;  		//坐标，u[1]到u[n]分别代表n个点的坐标，u[0]和u[n+1]赋值为0，不做考虑
+	double[] p;  		//动量，p[1]到p[n]分别代表n个点的动量，p[1]赋值为0，不做考虑	
+	double[] ro; 		//单个原子的能量占比，等于energy[i]/energy()
+	double[] energy;  	//单个原子的能量
+		
+	//定义实现SABA2C功能的函数
+	public void solveEquation() {	
+		//对于系统初始态依次使用算子
+		operatorLC(-Math.pow(tao, 3) * g/2);
+		operatorLA(c1 * tao);
+		operatorLB(d1 * tao);
+		operatorLA(c2 * tao);
+		operatorLB(d1 * tao);
+		operatorLA(c1 * tao);
+		operatorLC(-Math.pow(tao, 3) * g/2);				
+	}
+	
+	//将LA算子的功能封装
+	public void operatorLA(double t) {
+		for(int i = 1; i <= n; i++){
+			u[i] += p[i] * t;		
+		}
+	}
+	//将LB算子的功能封装
+	public void operatorLB(double t) {
+		for(int i = 1; i <= n; i++){
+			p[i] += ((u[i-1] + u[i+1] - 2*u[i])/w - u[i]*(e[i]+beta*u[i]*u[i]))*t;
+		}
+	}	
+	//将LC算子的功能封装
+	public void operatorLC(double t) { 
+		for(int i = 2; i <= n-1; i++){
+			p[i] += ( (u[i-1]*(e[i-1]+beta*u[i-1]*u[i-1])-(u[i-2] + u[i] - 2*u[i-1])/w)/w + 
+					(2/w+e[i]+3*beta*u[i]*u[i])*((u[i-1] + u[i+1] - 2*u[i])/w - u[i]*(e[i]+beta*u[i]*u[i])) +
+					(u[i+1]*(e[i+1]+beta*u[i+1]*u[i+1])-(u[i+2] + u[i] - 2*u[i+1])/w)/w   )*t*2;					
+		}
+		p[1] += ( (2/w+e[1]+3*beta*u[1]*u[1])*((u[2] - 2*u[1])/w - u[1]*(e[1]+beta*u[1]*u[1])) +
+				(u[2]*(e[2]+beta*u[2]*u[2])-(u[3] + u[1] - 2*u[2])/w)/w  )*t*2;
+		
+		p[n] += ( (u[n-1]*(e[n-1]+beta*u[n-1]*u[n-1])-(u[n-2] + u[n] - 2*u[n-1])/w)/w + 
+				(2/w+e[n]+3*beta*u[n]*u[n])*((u[n-1] - 2*u[n])/w - u[n]*(e[n]+beta*u[n]*u[n])) )*t*2;		
+	}
+	
+	//给参数取值的函数
+	public void setParameter(double tao, int n, int center) {
+		this.n = n;
+		this.tao = tao;
+		w = 4;
+		c1 = 0.5 * (1 - 1 / Math.sqrt(3));
+		c2 = 1 / Math.sqrt(3);
+		d1 = 0.5;
+		g = (2 - Math.sqrt(3))/24;
+		beta = 0;
+		e = new double[n + 1];
+		u = new double[n + 2];  //1到n表示坐标，其余归零
+		p = new double[n + 1];  //下标1到n表示动量，其余归零
+		ro = new double[n + 1];
+		energy = new double[n + 1];
+		
+		for(int i =0; i <= n+1; i++) {
+			u[i] = 0;
+		}
+		for(int i =0; i <= n; i++) {
+			p[i] = 0;
+		}		
+		u[n/2] = 1;
+		
+		//在中间部分生成周期性在位势e
+		for(int i =1; i <= n; i++) {
+			int start = (2 + n - center) / 2;
+			int end = 1 + n -start;
+			e[i] =0.5;
+			if(i >= start && i <=end) {
+				if((i - start) % 2 == 1) e[i] =1.5;
+			}
+		}
+		
+	}
+	
+	
+	public double energy() {
+		double totalenergy = 0;
+		for(int i = 0; i <=n; i++) {
+			energy[i] = Math.pow(p[i], 2)/2 + e[i]* Math.pow(u[i], 2)/2 +
+					beta*Math.pow(u[i], 4)/4 + Math.pow(u[i+1]-u[i], 2)/(2*w);	
+			totalenergy += energy[i];
+			
+		}
+		return totalenergy;
+	}
+	
+	
+	//打印坐标和动量
+	public void printSystem() {
+		System.out.println(Arrays.toString(u));		
+		System.out.println(Arrays.toString(p));		
+	}
+	
+	public double countSigma() {
+		for(int i = 1; i <=n; i++) {
+			sigma += Math.pow(i - n/2, 2) *  Math.pow(energy[i] / energy(), 2);		
+		}
+		return sigma;
+		
+	}	
+}
