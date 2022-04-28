@@ -1,23 +1,10 @@
-       
-	PROGRAM main
+PROGRAM main
 	implicit real*8(a-h,o-z)
 	parameter(n=1000,nmaxt=10**9,dt=0.1d0,C=1.0d0, & 
               beta=0.0d0,w=4.0d0)
 	dimension x(0:n+1),p(n)
 	dimension V(n),Ei_aver(n),total(n),VV(100000000),Ei(n),ro(n)
 	dimension ro_aver(n),fai(100000000)
-
-	open(0,file='Htot_Hnon.txt',status='unknown')
-	open(1,file='1_Energy_test.txt',status='unknown')
-	open(2,file='1_sgma.txt',status='unknown')
-	open(3,file='1_pa.txt',status='unknown')
-	open(4,file='1_ro=10^4.txt',status='unknown')
-	open(5,file='1_ro=10^5.txt',status='unknown')
-	open(6,file='1_ro=10^6.txt',status='unknown')
-	open(7,file='1_ro=10^7.txt',status='unknown')
-	open(8,file='1_ro=10^8.txt',status='unknown')
-	open(9,file='1_ro=10^9.txt',status='unknown')
-	open(10,file='1_ro=10^10.txt',status='unknown')
 
 	t=0.0d0;idum=11111;pi=dacos(-1.0d0);n0=n/2
 
@@ -31,18 +18,9 @@
 
         
 	x(n0)=C
-	write(*,*)x(n0)
-
-      do i=1,1000000
-	fai(i)=2.0d0*ran(idum)*PI
-	enddo
-
-	do i=1,10**8
-	VV(i)=1.5d0-ran(idum)
-	enddo
 
 	do i=1,n
-      V(i)=VV(i+11111*1)
+      V(i)=1.0d0
 	enddo
 	V(n0)=1.0d0
 
@@ -56,7 +34,7 @@
 	H2=H2+beta*x(i)*x(i)*x(i)*x(i)/4.0d0
 	enddo
 	H0=H1+H2
-	write(*,*)t,H0,H2
+	print *,H0
 
 	do 100 istep=1,nmaxt
 	t=dble(istep)*dt
@@ -83,41 +61,16 @@
       do i=1,n
 	ro(i)=Ei(i)/H
 	enddo
-      cen=0.0d0
-	do i=1,n
-	cen=cen+dble(i)*ro(i)
-	enddo
+     
 
       sgma=0.0d0;sgma2=0.0d0;total2=0.0d0
 	do i=1,n
 	sgma=sgma+(i-n0)**2*ro(i)
-	sgma2=sgma2+(i-cen)**2*ro(i)
-	total2=total2+ro(i)**2
-	pa=1.0d0/total2
 	enddo
-
-	total1=0.0d0
-	do i=1,n
-      total(i)=total(i)+Ei(i)*dt
-	Ei_aver(i)=total(i)/dble(istep*dt)
-	enddo
-     do i=1,n
-	ro_aver(i)=Ei_aver(i)/H
-	enddo
-	total1=0.0d0
-	do i=1,n
-	if(ro_aver(i) .gt. 10**(-8))then
-      total1=total1+ro_aver(i)*dlog(ro_aver(i))
-	endif
-	enddo
-	eta=exp(-total1)/dble(n)
 
 	if (istep.le. 100)then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+        print *,t,abs((H-H0)/H0),sgma
+    
 	endif
 
 	if (istep .gt. 100)then
@@ -125,11 +78,7 @@
 	ntp=istep/10
 	ntp1=ntp*10
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 	endif
@@ -139,11 +88,7 @@
 	ntp=istep/100
 	ntp1=ntp*100
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 	endif
@@ -152,11 +97,7 @@
 	ntp=istep/1000
 	ntp1=ntp*1000
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 
@@ -164,11 +105,7 @@
 	ntp=istep/10000
 	ntp1=ntp*10000
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 
@@ -176,11 +113,7 @@
 	ntp=istep/100000
 	ntp1=ntp*100000
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-     write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 
@@ -188,11 +121,7 @@
 	ntp=istep/1000000
 	ntp1=ntp*1000000
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 
@@ -200,41 +129,37 @@
 	ntp=istep/10**7
 	ntp1=ntp*10**7
 	if(ntp1.eq.istep) then
-	write(0,*)t,H,H2
-      write(1,*)t,abs((H-H0)/H0)
-      write(2,*)t,eta
-      write(2,*)t,sgma
-      write(3,*)t,pa
+	    print *,t,abs((H-H0)/H0),sgma
 	endif
 	endif
 
 
       if (istep .eq. 10**5) then
       do i=1,n
-	write(4,*)i,ro(i)
+	    print *,t,abs((H-H0)/H0),sgma
 	enddo
 	endif
 
       if (istep .eq. 10**6) then
       do i=1,n
-	write(5,*)i,ro(i)
+	    print *,t,abs((H-H0)/H0),sgma
 	enddo
 	endif
 
       if (istep .eq. 10**7) then
       do i=1,n
-	write(6,*)i,ro(i)
+	    print *,t,abs((H-H0)/H0),sgma
 	enddo
 	endif
       if (istep .eq. 10**8) then
       do i=1,n
-	write(7,*)i,ro(i)
+	    print *,t,abs((H-H0)/H0),sgma
 	enddo
 	endif
 
       if (istep .eq. 10**9) then
       do i=1,n
-	write(8,*)i,ro(i)
+	    print *,t,abs((H-H0)/H0),sgma
 	enddo
 	endif
 
@@ -329,4 +254,3 @@
 	enddo
 	return
 	end
-                                 
