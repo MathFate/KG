@@ -1,10 +1,10 @@
 PROGRAM main
 	implicit real*8(a-h,o-z)
-	parameter(n=1000,nmaxt=10**5,dt=0.1d0,C=1.0d0, & 
+	parameter(n=1000,nmaxt=10**4,dt=0.1d0,C=1.0d0, & 
               beta=0.0d0,w=4.0d0)
 	dimension x(0:n+1),p(n)
 	dimension V(n),Ei_aver(n),total(n),VV(100000000),Ei(n),ro(n)
-	dimension ro_aver(n),fai(100000000)
+   
 
 	t=0.0d0;idum=11111;pi=dacos(-1.0d0);n0=n/2
 
@@ -13,20 +13,19 @@ PROGRAM main
 	x(i)=0.0d0
 	p(i)=0.0d0
 	ro(i)=0.0d0
-	ro_aver(i)=0.0d0
-	enddo
 
-        
+	enddo        
 	x(n0)=C
-
+    
+    !设置势场
 	do i=1,n
-      V(i)=1.0d0
+    V(i)=1.0d0 
 	enddo
-	V(n0)=1.0d0
-
-      H1=0.0d0;H2=0.0d0	  
+	
+    !计算初始能量
+    H1=0.0d0;H2=0.0d0	  
 	do i=1,n   
-      H1=H1+p(i)*p(i)/2.0d0+V(i)*x(i)*x(i)/2.0d0 & 
+    H1=H1+p(i)*p(i)/2.0d0+V(i)*x(i)*x(i)/2.0d0 & 
      	+(x(i+1)-x(i))**2/(2.0d0*w)
 	enddo
 	H1=H1+(x(1)-x(0))**2/(2.0d0*w)
@@ -36,15 +35,21 @@ PROGRAM main
 	H0=H1+H2
 	print *,H0
 
+
+    
+    !主程序，循环起点
 	do 100 istep=1,nmaxt
 	t=dble(istep)*dt
 
+
+
+    !执行子程序
 	call SABA2C(N,dt,x,p,V,beta,w)
 
-     !calculate system energy 
-      H1=0.0d0;H2=0.0d0
+    !计算t时刻能量
+    H1=0.0d0;H2=0.0d0
 	do i=1,n   
-      H1=H1+p(i)*p(i)/2.0d0+V(i)*x(i)*x(i)/2.0d0 & 
+    H1=H1+p(i)*p(i)/2.0d0+V(i)*x(i)*x(i)/2.0d0 & 
      	+(x(i+1)-x(i))**2/(2.0d0*w)
 	enddo
 	H1=H1+(x(1)-x(0))**2/(2.0d0*w)
@@ -54,16 +59,15 @@ PROGRAM main
 	H=H1+H2
 
 	do i=1,n   
-      Ei(i)=p(i)**2/2.0d0+v(i)*x(i)**2/2.0d0+beta*x(i)**4/4.0d0 & 
+    Ei(i)=p(i)**2/2.0d0+v(i)*x(i)**2/2.0d0+beta*x(i)**4/4.0d0 & 
            +((x(i+1)-x(i))**2+(x(i)-x(i-1))**2)/(4.0d0*w)
 	enddo
-
-      do i=1,n
+    do i=1,n
 	ro(i)=Ei(i)/H
 	enddo
      
-
-      sgma=0.0d0;sgma2=0.0d0;total2=0.0d0
+    !计算物理量sgma
+    sgma=0.0d0
 	do i=1,n
 	sgma=sgma+(i-n0)**2*ro(i)
 	enddo
@@ -167,6 +171,7 @@ PROGRAM main
 100	continue
 	end
 
+    !子程序详情
 	subroutine SABA2C(n,dt,x,p,V,beta,w)
 	implicit real*8(a-h,o-z) 
 	dimension x(0:n+1),p(n),V(n)
