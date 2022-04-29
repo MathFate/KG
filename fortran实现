@@ -1,6 +1,6 @@
 PROGRAM main
 	implicit real*8(a-h,o-z)
-	parameter(n=1000,nmaxt=10**9,dt=0.1d0,C=1.0d0, & 
+	parameter(n=1000,nmaxt=10**5,dt=0.1d0,C=1.0d0, & 
               beta=0.0d0,w=4.0d0)
 	dimension x(0:n+1),p(n)
 	dimension V(n),Ei_aver(n),total(n),VV(100000000),Ei(n),ro(n)
