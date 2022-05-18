@@ -2,102 +2,123 @@ package kgprogram;
 
 import java.util.Arrays;
 import java.io.*;
-import java.util.*;
 
-public class Mains {
+public class Mains3 {
+
 	public static void main(String[] arg){
-		int n = 8192;	
+		int n = 8192 * 2;	
 		double tao = 0.1;
 		int center = 128;
 		double energy0;	
 		double energy2;
-		TreeSet<Integer> help = new TreeSet<Integer>();		
-		for(int i = 0; i < 180; i++) {
-			help.add((int) Math.pow(10, i * 0.07));			
-		}
-		System.out.println(Arrays.toString(help.toArray()));	
+		double w0;
 		
-		try {
-			File file1 = new File("C:/Users/86158/Desktop/相对误差.txt");
-			File file2 = new File("C:/Users/86158/Desktop/Sigma.txt");
+		File file1 = new File("C:/Users/86158/Desktop/2022毕设/数据/w2/nonlinearAndRandom/无序18改变beta/w2random18beta7相对误差.txt");
+		File file2 = new File("C:/Users/86158/Desktop/2022毕设/数据/w2/nonlinearAndRandom/无序18改变beta/w2random18beta7Sigma.txt");
+		File file3 = new File("C:/Users/86158/Desktop/2022毕设/数据/w2/nonlinearAndRandom/无序18改变beta/w2random18beta7chainE2.txt");
+		File file4 = new File("C:/Users/86158/Desktop/2022毕设/数据/w2/nonlinearAndRandom/无序18改变beta/w2random18beta7LCE&Pa.txt");
+		try {			
 		FileWriter out1 = new FileWriter(file1);
 		FileWriter out2 = new FileWriter(file2);
+		FileWriter out3 = new FileWriter(file3);
+		FileWriter out4 = new FileWriter(file4);
 		BufferedWriter buf1 = new BufferedWriter(out1);
 		BufferedWriter buf2 = new BufferedWriter(out2);
-		KG system = new KG();
+		BufferedWriter buf3 = new BufferedWriter(out3);
+		BufferedWriter buf4 = new BufferedWriter(out4);
+		KGS system = new KGS();
 		system.setParameter(tao, n, center);
 		System.out.println(Arrays.toString(system.e));
-		energy0 =system.energy();	
+		energy0 =system.energy();
+		w0 = system.u[n/2];
 		
-		for(int i = 1; i <= Math.pow(10, 5) * 5; i++) {
+		for(int i = 1; i <= Math.pow(10, 5)*5; i++) {
+			double total=0;			
 			system.solveEquation();
 			energy2 = system.energy();
-			if(help.contains(i)) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "    " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "    " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
+			for(int j = 1; j <= n; j++) {				
+				total += Math.pow(system.du[j], 2) + Math.pow(system.dp[j], 2);					
 			}
-			/*
-			if (i == 1) {				
-				buf1.write(Math.log(i*tao)/Math.log(10) + "    " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "    " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
-			}
-			if (i <= 100 && i % 10 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
-			}
-			if (i >100 && i <= 1000 && i % 100 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
-				
-			}
-			if (i >1000 && i <= 10000 && i % 1000 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
-				
-			}
-			if (i >10000 && i <= 100000 && i % 10000 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();
-				
-			}
-			if (i >100000 && i <= 1000000 && i % 100000 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();		
-			}
-			if (i >1000000 && i <= 10000000 && i % 1000000 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();		
-			}
-			if (i >10000000 && i <= 100000000 && i % 10000000 == 0) {
-				buf1.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log((energy2 - energy0) / energy0)/Math.log(10));
-				buf2.write(Math.log(i*tao)/Math.log(10) + "   " + Math.log(system.countSigma())/Math.log(10));
-				buf1.newLine();
-				buf2.newLine();		
-			}*/
 			
+			if (i < 100) {				
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();
+				
+			}
+			
+			if (i >100 && i <= 1000 && i % 10 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();
+				
+			}
+			if (i >1000 && i <= 10000 && i % 100 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();
+				
+			}
+			if (i >10000 && i <= 100000 && i % 1000 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();
+				
+			}
+			if (i >100000 && i <= 1000000 && i % 10000 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();		
+			}
+			if (i >1000000 && i <= 10000000 && i % 100000 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();		
+			}
+			if (i >10000000 && i <= 100000000 && i % 1000000 == 0) {
+				buf1.write(i*tao + "    " +(energy2 - energy0) / energy0);
+				buf2.write(i*tao + "    " + system.countSigma());	
+				buf4.write(i*tao + "    " + Math.log(Math.sqrt(total)/w0)/(i*tao) + "    " + system.countPa());
+				buf4.newLine();
+				buf1.newLine();
+				buf2.newLine();		
+			}
+			
+			}
+			for(int i = 1; i <= n; i++) {
+				buf3.write(i + "  " + system.energy[i]);
+				buf3.newLine();
 			}
 			buf1.flush();
 			buf2.flush();
+			buf3.flush();
+			buf4.flush();
 			buf1.close();
 			buf2.close();
+			buf3.close();
+			buf4.close();
 			out1.close();
 			out2.close();
+			out3.close();
+			out4.close();
 			}catch (Exception e) {
 				e.printStackTrace();
 			}	
@@ -107,7 +128,7 @@ public class Mains {
 
 
 //定义处理一维KG链的动力学演化过程的类
-class KG {
+class KGS {
 	int n;       		//假设一维KG链有n个原子
 	double beta;
 	double w;  
@@ -119,7 +140,9 @@ class KG {
 	double sigma;       //需要计算的物理量
 	double[] e;  		//在位势
 	double[] u;  		//坐标，u[1]到u[n]分别代表n个点的坐标，u[0]和u[n+1]赋值为0，不做考虑
+	double[] du;
 	double[] p;  		//动量，p[1]到p[n]分别代表n个点的动量，p[1]赋值为0，不做考虑	
+	double[] dp;
 	double[] ro; 		//单个原子的能量占比，等于energy[i]/energy()
 	double[] energy;  	//单个原子的能量
 	double totalenergy; //n个原子的总能量
@@ -139,42 +162,56 @@ class KG {
 	//将LA算子的功能封装
 	public void operatorLA(double t) {
 		for(int i = 1; i <= n; i++){
-			u[i] += p[i] * t;		
+			u[i] += p[i] * t;
+			du[i] += dp[i] * t;
 		}
 	}
 	//将LB算子的功能封装
 	public void operatorLB(double t) {
+		
 		for(int i = 1; i <= n; i++){
 			p[i] += ((u[i-1] + u[i+1] - 2*u[i])/w - u[i]*(e[i]+beta*u[i]*u[i]))*t;
+			dp[i] += ((du[i-1] + du[i+1] - 2*du[i])/w - du[i]*(e[i]+3*beta*u[i]*u[i]))*t;
 		}
+		
 	}	
 	//将LC算子的功能封装
 	public void operatorLC(double t) { 
 		for(int i = 2; i <= n-1; i++){
 			p[i] += ( (u[i-1]*(e[i-1]+beta*u[i-1]*u[i-1])-(u[i-2] + u[i] - 2*u[i-1])/w)/w + 
 					(2/w+e[i]+3*beta*u[i]*u[i])*((u[i-1] + u[i+1] - 2*u[i])/w - u[i]*(e[i]+beta*u[i]*u[i])) +
-					(u[i+1]*(e[i+1]+beta*u[i+1]*u[i+1])-(u[i+2] + u[i] - 2*u[i+1])/w)/w   )*t*2;					
+					(u[i+1]*(e[i+1]+beta*u[i+1]*u[i+1])-(u[i+2] + u[i] - 2*u[i+1])/w)/w   )*t*2;	
+			/*dp[i] += ( (du[i-1]*(e[i-1]+3*beta*u[i-1]*u[i-1])-(du[i-2] + du[i] - 2*du[i-1])/w)/w + 
+					(2/w+e[i]+3*beta*u[i]*u[i])*((du[i-1] + du[i+1] - 2*du[i])/w - du[i]*(e[i]+3*beta*u[i]*u[i])) +
+					(du[i+1]*(e[i+1]+3*beta*u[i+1]*u[i+1])-(du[i+2] + du[i] - 2*du[i+1])/w)/w   )*t*2;		*/			
 		}
 		p[1] += ( (2/w+e[1]+3*beta*u[1]*u[1])*((u[2] - 2*u[1])/w - u[1]*(e[1]+beta*u[1]*u[1])) +
 				(u[2]*(e[2]+beta*u[2]*u[2])-(u[3] + u[1] - 2*u[2])/w)/w  )*t*2;
-		
+		/*dp[1] += ( (2/w+e[1]+3*beta*u[1]*u[1])*((du[2] - 2*du[1])/w - du[1]*(e[1]+3*beta*u[1]*u[1])) +
+				(du[2]*(e[2]+3*beta*u[2]*u[2])-(du[3] + du[1] - 2*du[2])/w)/w  )*t*2;*/
 		p[n] += ( (u[n-1]*(e[n-1]+beta*u[n-1]*u[n-1])-(u[n-2] + u[n] - 2*u[n-1])/w)/w + 
 				(2/w+e[n]+3*beta*u[n]*u[n])*((u[n-1] - 2*u[n])/w - u[n]*(e[n]+beta*u[n]*u[n])) )*t*2;		
+		/*dp[n] += ( (du[n-1]*(e[n-1]+3*beta*u[n-1]*u[n-1])-(du[n-2] + du[n] - 2*du[n-1])/w)/w + 
+				(2/w+e[n]+3*beta*u[n]*u[n])*((du[n-1] - 2*du[n])/w - du[n]*(e[n]+3*beta*u[n]*u[n])) )*t*2;		*/
 	}
+	
 	
 	//给参数取值的函数
 	public void setParameter(double tao, int n, int center) {
 		this.n = n;
 		this.tao = tao;
-		w = 4;
+		w = 2;
 		c1 = 0.5 * (1 - 1 / Math.sqrt(3));
 		c2 = 1 / Math.sqrt(3);
 		d1 = 0.5;
 		g = (2 - Math.sqrt(3))/24;
-		beta = 0;
+		beta = 7;
 		e = new double[n + 1];
 		u = new double[n + 2];  //1到n表示坐标，其余归零
 		p = new double[n + 1];  //下标1到n表示动量，其余归零
+		du = new double[n + 2];
+		dp = new double[n + 1];
+		
 		energy = new double[n + 1];
 		
 		for(int i =0; i <= n+1; i++) {
@@ -182,44 +219,62 @@ class KG {
 		}
 		for(int i =0; i <= n; i++) {
 			p[i] = 0;
-		}		
-		u[n/2] = 1;
-		
-		/*
-		//在中间部分生成周期性在位势e
-		for(int i =1; i <= n; i++) {
-			int start = (2 + n - center) / 2;
-			int end = 1 + n -start;
-			e[i] =0.5;
-			if(i >= start && i <=end) {
-				if((i - start) % 2 == 1) e[i] =1.5;
-			}
-		}*/
-		
-		/*
-		for(int i = 1; i <=n; i++) {
-			e[i] = 1;
-		}*/
-		for(int i =1; i <= n; i++) {
-			int start = (2 + n - center) / 2;
-			int end = 1 + n -start;
-			e[i] =1;
-			if(i >= start && i <=end) {
-				if((i - start) % 2 == 1) e[i] = 0.8;
-				if((i - start) % 2 == 0) e[i] = 1.2;
-			}
 		}
+		for(int i =0; i <= n+1; i++) {
+			du[i] = 0;
+		}
+		for(int i =0; i <= n; i++) {
+			dp[i] = 0;
+		}
+		u[n/2] = 1;
+		du[n/2] = 0.1;
 		
-				
+			
+		/*	//在中间部分生成周期性在位势e
+			for(int i =1; i <= n; i++) {
+				int start = (2 + n - center) / 2;
+				int end = 1 + n -start;
+				e[i] =1;
+				if(i >= start && i <=end) {
+					if((i - start) % 2 == 1) e[i] =1.5;
+					if((i - start) % 2 == 0) e[i] =0.5;
+				}
+			}
+			*/
+		
+		
 		/*
+				for(int i = 1; i <=n; i++) { e[i] = 1; }	
+				*/
+		
+		/* for(int i =1; i <= n; i++) {
+		  int start = (2 + n - center) / 2; 
+		  int end = 1 + n -start;
+		  e[i] =1;
+		  if(i >= start && i <=end) {
+			  if((i - start) % 2 == 1) e[i] = 0.2;
+			  if((i - start) % 2 == 0) e[i] = 1.8;
+		  }
+		 }*/
+			 
+		/* for(int i =1; i <= n; i++) {
+			  int start = (2 + n - center) / 2; 
+			  int end = 1 + n -start;
+			  e[i] =1;
+			  if(i >= start && i <=end) {
+				  if((i - start) % 2 == 1) e[i] = 0;
+				  if((i - start) % 2 == 0) e[i] = 2;
+			  }
+			 }*/
+		 		
 		for(int i =1; i <= n; i++) {
 			int start = (2 + n - center) / 2;
 			int end = 1 + n -start;
 			e[i] =1;
 			if(i >= start && i <=end) {
-				e[i] = Math.random() + 0.5;
+				e[i] = Math.round(Math.random())*1.6 + 0.2;
 			}
-		}*/	
+		}	
 	}
 	
 	
@@ -253,5 +308,12 @@ class KG {
 		}
 		return sigma;
 		
-	}	
+	}
+	public double countPa() {
+		double temp = 0;
+		for (int i = 1; i <= n; i++) {
+			temp +=  Math.pow(energy[i] / totalenergy, 2);
+		}		
+		return 1/temp;		
+	}
 }
